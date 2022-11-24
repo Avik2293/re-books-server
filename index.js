@@ -18,11 +18,41 @@ async function run() {
     try {
         const catagoryCollection = client.db('reBooksDb').collection('catagories');
 
+        const userCollection = client.db('reBooksDb').collection('users');
+
+        // home
         app.get('/', async (req, res) => {
             const query = {}
             const cursor = catagoryCollection.find(query);
             const catagories = await cursor.toArray();
             res.send(catagories);
+        });
+
+
+        // users create
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await userCollection.insertOne(user);
+            res.send(result);
+        });
+
+        // user read
+        app.get('/users', async (req, res) => {
+            let query = {};
+            if (req.query.email) {
+                query = {
+                    userEmail: req.query.email
+                }
+            }
+            const cursor = userCollection.findOne(query);
+            const eachUser = await cursor;
+            console.log(eachUser);
+            if(eachUser == null){
+                res.send(eachUser == false);
+            }
+            else{
+                res.send(eachUser);
+            }
         });
 
     }
