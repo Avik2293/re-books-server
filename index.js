@@ -21,6 +21,8 @@ async function run() {
         const bookCollection = client.db('reBooksDb').collection('books');
 
         const userCollection = client.db('reBooksDb').collection('users');
+        
+        const bookingCollection = client.db('reBooksDb').collection('bookings');
 
         // home
         app.get('/', async (req, res) => {
@@ -65,6 +67,13 @@ async function run() {
             else{
                 res.send(eachUser);
             }
+        });
+
+        // bookings create
+        app.post('/bookings', async (req, res) => {
+            const booking = req.body;
+            const result = await bookingCollection.insertOne(booking);
+            res.send(result);
         });
 
     }
