@@ -17,6 +17,8 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const catagoryCollection = client.db('reBooksDb').collection('catagories');
+        
+        const bookCollection = client.db('reBooksDb').collection('books');
 
         const userCollection = client.db('reBooksDb').collection('users');
 
@@ -28,6 +30,16 @@ async function run() {
             res.send(catagories);
         });
 
+        // books read by catagory id
+        app.get('/catagory/:id', async (req, res) => {
+            const id = req.params.id;
+            // console.log(typeof id);
+            const query = { catagoryId: +id };
+            const cursor = bookCollection.find(query);
+            const books = await cursor.toArray();
+            // console.log(books);
+            res.send(books);
+        });
 
         // users create
         app.post('/users', async (req, res) => {
@@ -36,7 +48,7 @@ async function run() {
             res.send(result);
         });
 
-        // user read
+        // user read by email
         app.get('/users', async (req, res) => {
             let query = {};
             if (req.query.email) {
