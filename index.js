@@ -76,6 +76,25 @@ async function run() {
             res.send(result);
         });
 
+        // bookings read by email
+        app.get('/bookings', async (req, res) => {
+            let query = {};
+            if (req.query.email) {
+                query = {
+                    bookingEmail: req.query.email
+                }
+            }
+            const cursor = bookingCollection.find(query);
+            const bookings = await cursor.toArray();
+            console.log(bookings);
+            // if(bookings == null){
+            //     res.send(bookings == false);
+            // }
+            // else{
+                res.send(bookings);
+            // }
+        });
+
     }
     finally {
 
