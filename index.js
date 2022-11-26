@@ -51,6 +51,20 @@ async function run() {
             res.send(result);
         });
 
+        // books read by email
+        app.get('/books', async (req, res) => {
+            let query = {};
+            if (req.query.email) {
+                query = {
+                    sellerEmail: req.query.email
+                }
+            }
+            const cursor = bookCollection.find(query);
+            const books = await cursor.toArray();
+            console.log(books);
+            res.send(books);
+        })
+
         // users create
         app.post('/users', async (req, res) => {
             const user = req.body;
@@ -114,9 +128,7 @@ async function run() {
         });
 
     }
-    finally {
-
-    }
+    finally { }
 }
 run().catch(err => console.error(err));
 
