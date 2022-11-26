@@ -43,6 +43,14 @@ async function run() {
             res.send(books);
         });
 
+        // new book for sale create
+        app.post('/book', async (req, res) => {
+            const newBook = req.body;
+            // newBook.postTime = new Date(); //server date 
+            const result = await bookCollection.insertOne(newBook);
+            res.send(result);
+        });
+
         // users create
         app.post('/users', async (req, res) => {
             const user = req.body;
