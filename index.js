@@ -68,6 +68,16 @@ async function run() {
                 res.send(eachUser);
             }
         });
+        
+        // // Admin check by email
+        // app.get('/users/admin/:email', async (req, res) => {
+        //     const email = req.params.email;
+        //     const query = { userEmail: `${email}` };
+        //     const cursor = userCollection.findOne(query);
+        //     const user = await cursor;
+        //     console.log(user);
+        //     res.send({isAdmin: user?.role === "Admin"});
+        // });
 
         // bookings create
         app.post('/bookings', async (req, res) => {
