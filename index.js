@@ -51,6 +51,7 @@ async function run() {
             res.send(result);
         });
 
+
         // books read by email
         app.get('/books', async (req, res) => {
             let query = {};
@@ -113,6 +114,14 @@ async function run() {
             else {
                 res.send(eachUser);
             }
+        });
+
+        // user delete by _id
+        app.delete('/user/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await userCollection.deleteOne(query);
+            res.send(result);
         });
 
         // find seller
