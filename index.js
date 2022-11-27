@@ -17,11 +17,11 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const catagoryCollection = client.db('reBooksDb').collection('catagories');
-        
+
         const bookCollection = client.db('reBooksDb').collection('books');
 
         const userCollection = client.db('reBooksDb').collection('users');
-        
+
         const bookingCollection = client.db('reBooksDb').collection('bookings');
 
         // home
@@ -79,7 +79,7 @@ async function run() {
             const update = req.body;
             console.log(req.body);
             const query = { _id: ObjectId(id) };
-            const option = {upsert: true};
+            const option = { upsert: true };
             const updatedDoc = {
                 $set: {
                     advertised: update.advertised
@@ -107,14 +107,39 @@ async function run() {
             const cursor = userCollection.findOne(query);
             const eachUser = await cursor;
             console.log(eachUser);
-            if(eachUser == null){
+            if (eachUser == null) {
                 res.send(eachUser == false);
             }
-            else{
+            else {
                 res.send(eachUser);
             }
         });
-        
+
+        // find seller
+        app.get('/users/sellers', async (req, res) => {
+            let query = { role: "Seller" };
+            const cursor = userCollection.find(query);
+            const eachSeller = await cursor.toArray();
+            console.log(eachSeller);
+            res.send(eachSeller);
+        });
+
+        // user-seller verified update by _id
+        app.patch('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const update = req.body;
+            console.log(req.body);
+            const query = { _id: ObjectId(id) };
+            const option = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    verified: update.verified
+                }
+            }
+            const result = await userCollection.updateOne(query, updatedDoc, option);
+            res.send(result);
+        });
+
         // // Admin check by email
         // app.get('/users/admin/:email', async (req, res) => {
         //     const email = req.params.email;
@@ -147,7 +172,7 @@ async function run() {
             //     res.send(bookings == false);
             // }
             // else{
-                res.send(bookings);
+            res.send(bookings);
             // }
         });
 
