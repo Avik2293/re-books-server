@@ -65,6 +65,30 @@ async function run() {
             res.send(books);
         })
 
+        // Book delete by _id
+        app.delete('/book/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await bookCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        // book advertise update by _id
+        app.patch('/book/:id', async (req, res) => {
+            const id = req.params.id;
+            const update = req.body;
+            console.log(req.body);
+            const query = { _id: ObjectId(id) };
+            const option = {upsert: true};
+            const updatedDoc = {
+                $set: {
+                    advertised: update.advertised
+                }
+            }
+            const result = await bookCollection.updateOne(query, updatedDoc, option);
+            res.send(result);
+        });
+
         // users create
         app.post('/users', async (req, res) => {
             const user = req.body;
