@@ -124,6 +124,15 @@ async function run() {
             res.send(eachSeller);
         });
 
+        // find buyers
+        app.get('/users/buyers', async (req, res) => {
+            let query = { role: "Buyer" };
+            const cursor = userCollection.find(query);
+            const eachBuyer = await cursor.toArray();
+            console.log(eachBuyer);
+            res.send(eachBuyer);
+        });
+
         // user-seller verified update by _id
         app.patch('/users/:id', async (req, res) => {
             const id = req.params.id;
