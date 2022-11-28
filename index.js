@@ -2,6 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
+
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -23,6 +27,8 @@ async function run() {
         const userCollection = client.db('reBooksDb').collection('users');
 
         const bookingCollection = client.db('reBooksDb').collection('bookings');
+
+        const paymentCollection = client.db('reBooksDb').collection('payments');
 
         // home
         app.get('/', async (req, res) => {
@@ -186,12 +192,74 @@ async function run() {
             const cursor = bookingCollection.find(query);
             const bookings = await cursor.toArray();
             console.log(bookings);
-            // if(bookings == null){
-            //     res.send(bookings == false);
-            // }
-            // else{
             res.send(bookings);
-            // }
+
+            // booking read by _id
+            app.get('/bookings/:id', async (req, res) => {
+                const id = req.params.id;
+                const query = { _id: ObjectId(id) };
+                const cursor = bookingCollection.findOne(query);
+                const booking = await cursor;
+                // console.log(books);
+                res.send(booking);
+            });
+
+            // PAYMENT system
+            app.post("/create-payment-intent", async (req, res) => {
+                const booking = req.body;
+                const price = booking.selectedBookPrice;
+                const amount = price * 100;
+
+                // Create a PaymentIntent with the order amount and currency
+                const paymentIntent = await stripe.paymentIntents.create({
+                    // amount: calculateOrderAmount(items),
+                    amount: amount,
+                    currency: "usd",
+                    // automatic_payment_methods: {
+                    //     enabled: true,
+                    // },
+                    "payment_method_types": [
+                        "card"
+                    ]
+                });
+
+                res.send({
+                    clientSecret: paymentIntent.client_secret,
+                });
+            });
+
+            // payment set and update sold status on book/booking
+            app.post('/payments', async (req, res) => {
+                const payment = req.body;
+                const result = await paymentCollection.insertOne(payment);
+
+                const id = payment.bookingId;
+                const query = { _id: ObjectId(id) };
+                const option = { upsert: true };
+                const updatedDoc = {
+                    $set: {
+                        sold: true,
+                        transactionId: payment.transactionId,
+                    }
+                };
+                const updatedResult = await bookingCollection.updateOne(query, updatedDoc, option);
+
+                const id2 = payment.bookId;
+                const query2 = { _id: ObjectId(id2) };
+                const option2 = { upsert: true };
+                const updatedDoc2 = {
+                    $set: {
+                        sold: true,
+                        transactionId: payment.transactionId,
+                    }
+                };
+                const updatedResult2 = await bookCollection.updateOne(query2, updatedDoc2, option2);
+
+                res.send(result);
+            });
+                
+            
+
         });
 
     }
