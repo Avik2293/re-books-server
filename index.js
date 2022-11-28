@@ -95,6 +95,30 @@ async function run() {
             const result = await bookCollection.updateOne(query, updatedDoc, option);
             res.send(result);
         });
+        
+        // book report by _id
+        app.put('/book/:id', async (req, res) => {
+            const id = req.params.id;
+            const update = req.body;
+            console.log(req.body);
+            const query = { _id: ObjectId(id) };
+            const option = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    reported: update.reported
+                }
+            }
+            const result = await bookCollection.updateOne(query, updatedDoc, option);
+            res.send(result);
+        });
+
+        // reported book get
+        app.get('/book', async (req, res) => {
+            const query = { reported: true };
+            const cursor = bookCollection.find(query);
+            const repotedBooks = await cursor.toArray();
+            res.send(repotedBooks);
+        });
 
         // users create
         app.post('/users', async (req, res) => {
